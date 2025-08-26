@@ -1,7 +1,10 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Clock, Star } from "lucide-react"
+import { MapPin, Calendar, Clock, Star, BadgeCheck } from "lucide-react"
+import { useState } from "react"
+import { Modal } from "@/components/ui/modal"
+import { ListingDetailModal } from "@/components/listing-detail-modal"
 
 interface ListingCardProps {
   id: string
@@ -15,9 +18,17 @@ interface ListingCardProps {
   rating?: number
   price?: string
   image: string
+  claimed?: boolean
+  businessName?: string
+  businessPhone?: string
+  businessEmail?: string
+  featured?: boolean
+  expiresAt?: string
+  endDate?: string
 }
 
 export function ListingCard({
+  id,
   title,
   description,
   category,
@@ -28,7 +39,27 @@ export function ListingCard({
   rating,
   price,
   image,
+  claimed,
+  businessName,
+  businessPhone,
+  businessEmail,
+  featured,
+  expiresAt,
+  endDate,
 }: ListingCardProps) {
+  const isExpired = (() => {
+    const now = new Date()
+    if (category === "jobs" && expiresAt) return new Date(expiresAt) < now
+    if (category === "ads" && endDate) return new Date(endDate) < now
+    if (category === "subscriptions" && endDate) return new Date(endDate) < now
+    return false
+  })()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleCardClick = () => {
+    setIsModalOpen(true)
+  }
+
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "travel":
@@ -41,22 +72,37 @@ export function ListingCard({
         return "bg-orange-100 text-orange-800"
       case "transport":
         return "bg-indigo-100 text-indigo-800"
+      case "business":
+        return "bg-cyan-100 text-cyan-800"
+      case "promotions":
+        return "bg-pink-100 text-pink-800"
+      case "ads":
+        return "bg-yellow-100 text-yellow-800"
       default:
         return "bg-gray-100 text-gray-800"
     }
   }
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-      <div className="relative">
+    <>
+      <Card 
+        className={`group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer ${isExpired ? 'opacity-60' : ''}`}
+        onClick={handleCardClick}
+      >
+      <div className="relative -mt-6 -mx-6">
         <img
           src={image || "/placeholder.svg"}
           alt={title}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <Badge className={`absolute top-3 left-3 ${getCategoryColor(category)}`}>{category}</Badge>
+        <Badge className={`absolute top-3 left-10 ${getCategoryColor(category)}`}>{category}</Badge>
+        {claimed && (
+          <div className="absolute bottom-3 left-10 bg-emerald-600 text-white px-2 py-1 rounded">
+            <BadgeCheck className="h-4 w-4" />
+          </div>
+        )}
         {price && (
-          <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm rounded-full px-3 py-1">
+          <div className="absolute top-3 right-10 bg-background/90 backdrop-blur-sm rounded-full px-3 py-1">
             <span className="font-semibold text-primary">{price}</span>
           </div>
         )}
@@ -72,6 +118,16 @@ export function ListingCard({
             </div>
           )}
         </div>
+        {featured && (
+          <div className="mt-1">
+            <Badge className="text-[10px] px-1.5 py-0.5">Featured</Badge>
+          </div>
+        )}
+        {isExpired && (
+          <div className="mt-1">
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0.5">Expired</Badge>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="pt-0">
@@ -120,9 +176,44 @@ export function ListingCard({
               ? "Get Tickets"
               : category === "transport"
                 ? "Book Now"
-                : "Explore"}
+                : category === "business"
+                  ? "Contact Business"
+                  : category === "promotions"
+                    ? "View Promo"
+                    : category === "ads"
+                      ? "View Ad"
+                      : category === "services"
+                        ? "Contact Now"
+                        : "Explore"}
         </Button>
       </CardFooter>
-    </Card>
+      </Card>
+
+      {/* Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ListingDetailModal 
+          listing={{
+            id,
+            title,
+            description,
+            category,
+            tags,
+            location,
+            date,
+            time,
+            rating,
+            price,
+            image,
+            contact: location, // You can extend this with actual contact data
+            email: "", // You can extend this with actual email data
+            website: "", // You can extend this with actual website data
+            claimed,
+            businessName,
+            businessPhone,
+            businessEmail,
+          }}
+        />
+      </Modal>
+    </>
   )
 }

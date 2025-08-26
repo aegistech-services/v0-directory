@@ -16,7 +16,7 @@ export function Hero() {
             and transport schedules. Start exploring today.
           </p>
 
-          {/* Search Bar */}
+          {/* Search Bar 
           <div className="max-w-2xl mx-auto mb-12">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -26,9 +26,9 @@ export function Hero() {
               />
               <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full px-6">Search</Button>
             </div>
-          </div>
+          </div>*/}
 
-          {/* Quick Categories */}
+          {/* Quick Categories 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-3xl mx-auto">
             <div className="flex flex-col items-center p-4 rounded-lg hover:bg-card transition-colors cursor-pointer">
               <MapPin className="h-8 w-8 text-primary mb-2" />
@@ -50,7 +50,7 @@ export function Hero() {
               <Bus className="h-8 w-8 text-primary mb-2" />
               <span className="text-sm font-medium">Transport</span>
             </div>
-          </div>
+          </div>*/}
         </div>
       </div>
     </section>

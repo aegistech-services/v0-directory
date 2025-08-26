@@ -1,0 +1,276 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  role      UserRole @default(PUBLIC)
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  businessListings BusinessListing[]
+  jobPostings      JobPosting[]
+  serviceListings  ServiceListing[]
+  eventListings    EventListing[]
+  adsListings      AdsListing[]
+  inquiriesFrom    Inquiry[]         @relation("InquiryFrom")
+  inquiriesTo      Inquiry[]         @relation("InquiryTo")
+  bookmarks        Bookmark[]
+  subscriptions    Subscription[]
+  promotions       Promotion[]
+}
+
+model BusinessListing {
+  id          Int      @id @default(autoincrement())
+  companyName String
+  address     String
+  contactName String
+  email       String
+  phone       String
+  mapUrl      String?
+  remark      String?
+  isActive    Boolean  @default(true)
+  isClaimed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownerId     Int
+  owner       User         @relation(fields: [ownerId], references: [id])
+  catalogs    Catalog[]
+  jobPostings JobPosting[]
+  bookmarks   Bookmark[]
+  inquiries   Inquiry[]
+}
+
+model Catalog {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  imageUrl    String?
+  pdfUrl      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  businessListingId Int
+  businessListing   BusinessListing @relation(fields: [businessListingId], references: [id])
+}
+
+model JobPosting {
+  id           Int       @id @default(autoincrement())
+  title        String
+  description  String
+  requirements String?
+  salary       String?
+  location     String?
+  expiresAt    DateTime?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  companyId Int
+  company   BusinessListing @relation(fields: [companyId], references: [id])
+  ownerId   Int
+  owner     User            @relation(fields: [ownerId], references: [id])
+  bookmarks Bookmark[]
+  inquiries Inquiry[]
+}
+
+model ServiceListing {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  rate        Float
+  category    String
+  remark      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownerId   Int
+  owner     User       @relation(fields: [ownerId], references: [id])
+  bookmarks Bookmark[]
+  inquiries Inquiry[]
+}
+
+model EventListing {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  ownerId   Int
+  owner     User       @relation(fields: [ownerId], references: [id])
+  bookmarks Bookmark[]
+  inquiries Inquiry[]
+}
+
+model AdsListing {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  imageUrl    String?
+  linkUrl     String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownerId   Int
+  owner     User       @relation(fields: [ownerId], references: [id])
+  bookmarks Bookmark[]
+  inquiries Inquiry[]
+}
+
+model Inquiry {
+  id        Int           @id @default(autoincrement())
+  subject   String
+  message   String
+  status    InquiryStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  fromId Int
+  toId   Int
+  from   User @relation("InquiryFrom", fields: [fromId], references: [id])
+  to     User @relation("InquiryTo", fields: [toId], references: [id])
+
+  // Optional relations to specific listings
+  businessListingId Int?
+  businessListing   BusinessListing? @relation(fields: [businessListingId], references: [id])
+  jobPostingId      Int?
+  jobPosting        JobPosting?      @relation(fields: [jobPostingId], references: [id])
+  serviceListingId  Int?
+  serviceListing    ServiceListing?  @relation(fields: [serviceListingId], references: [id])
+  eventListingId    Int?
+  eventListing      EventListing?    @relation(fields: [eventListingId], references: [id])
+  adsListingId      Int?
+  adsListing        AdsListing?      @relation(fields: [adsListingId], references: [id])
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  // One of these will be set
+  businessListingId Int?
+  businessListing   BusinessListing? @relation(fields: [businessListingId], references: [id])
+  jobPostingId      Int?
+  jobPosting        JobPosting?      @relation(fields: [jobPostingId], references: [id])
+  serviceListingId  Int?
+  serviceListing    ServiceListing?  @relation(fields: [serviceListingId], references: [id])
+  eventListingId    Int?
+  eventListing      EventListing?    @relation(fields: [eventListingId], references: [id])
+  adsListingId      Int?
+  adsListing        AdsListing?      @relation(fields: [adsListingId], references: [id])
+}
+
+model Subscription {
+  id                   Int              @id @default(autoincrement())
+  plan                 SubscriptionPlan
+  startDate            DateTime
+  endDate              DateTime
+  isActive             Boolean          @default(true)
+  stripeSubscriptionId String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  // Relations
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model Promotion {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  imageUrl    String?
+  linkUrl     String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownerId Int
+  owner   User @relation(fields: [ownerId], references: [id])
+}
+
+model WebsiteSettings {
+  id                  Int      @id @default(autoincrement())
+  siteName            String   @default("Langkawi Directory")
+  logo                String?
+  favicon             String?
+  description         String?
+  keywords            String?
+  googleAnalyticsId   String?
+  googleWebConsoleId  String?
+  stripePublicKey     String?
+  stripeWebhookSecret String?
+  whatsappApiKey      String?
+  weatherApiKey       String?
+  disclaimer          String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  BUSINESS_OWNER
+  FREELANCER
+  ADVERTISER
+  PUBLIC
+}
+
+enum InquiryStatus {
+  PENDING
+  READ
+  REPLIED
+  CLOSED
+}
+
+enum SubscriptionPlan {
+  BEGINNER_BUSINESS
+  INTERMEDIATE_BUSINESS
+  PROFESSIONAL_BUSINESS
+  BEGINNER_FREELANCER
+  INTERMEDIATE_FREELANCER
+  PROFESSIONAL_FREELANCER
+  BEGINNER_ADVERTISER
+  INTERMEDIATE_ADVERTISER
+  PROFESSIONAL_ADVERTISER
+}

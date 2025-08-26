@@ -7,6 +7,8 @@ import { TagSelector } from "@/components/tag-selector"
 import { ListingCard } from "@/components/listing-card"
 import { About } from "@/components/about"
 import { Footer } from "@/components/footer"
+import { BottomNav } from "@/components/bottom-nav"
+import MaintenanceWrapper from "@/components/maintenance-wrapper"
 
 // Mock data for listings
 const mockListings = [
@@ -19,8 +21,12 @@ const mockListings = [
     tags: ["adventure", "cultural", "nature"],
     location: "Bali, Indonesia",
     rating: 4.8,
-    price: "$299",
+    price: "RM 299",
     image: "/bali-temple-sunset.png",
+    claimed: true,
+    businessName: "Langkawi Tours",
+    businessPhone: "+60 12-345 6789",
+    businessEmail: "info@lktours.com",
   },
   {
     id: "2",
@@ -33,7 +39,7 @@ const mockListings = [
     date: "March 15-17, 2024",
     time: "9:00 AM - 6:00 PM",
     rating: 4.9,
-    price: "$599",
+    price: "RM 599",
     image: "/tech-conference-stage.png",
   },
   {
@@ -44,8 +50,12 @@ const mockListings = [
     category: "jobs",
     tags: ["tech", "remote", "react"],
     location: "Remote / New York, NY",
-    price: "$120k - $150k",
+    price: "RM 120k - RM 150k",
     image: "/developer-coding-office.png",
+    claimed: true,
+    businessName: "Techify Co.",
+    businessPhone: "+1 (212) 555-0101",
+    businessEmail: "hr@techify.co",
   },
   {
     id: "4",
@@ -56,7 +66,7 @@ const mockListings = [
     tags: ["home", "cleaning", "eco-friendly"],
     location: "Los Angeles, CA",
     rating: 4.7,
-    price: "$80/visit",
+    price: "RM 80/visit",
     image: "/clean-modern-interior.png",
   },
   {
@@ -68,7 +78,7 @@ const mockListings = [
     tags: ["train", "europe", "fast"],
     location: "London to Paris",
     time: "3h 20min",
-    price: "From $89",
+    price: "From RM 89",
     image: "/high-speed-train-station.png",
   },
   {
@@ -81,7 +91,7 @@ const mockListings = [
     location: "New Orleans, LA",
     date: "April 20-22, 2024",
     rating: 4.6,
-    price: "$199",
+    price: "RM 199",
     image: "/jazz-festival-outdoor-stage.png",
   },
   {
@@ -93,7 +103,7 @@ const mockListings = [
     tags: ["adventure", "nature", "hiking"],
     location: "Rocky Mountains, CO",
     rating: 4.9,
-    price: "$450",
+    price: "RM 450",
     image: "/mountain-hiking-trail-sunrise.png",
   },
   {
@@ -104,8 +114,97 @@ const mockListings = [
     category: "jobs",
     tags: ["marketing", "leadership", "creative"],
     location: "Austin, TX",
-    price: "$85k - $110k",
+    price: "RM 85k - RM 110k",
     image: "/marketing-team-meeting-office.png",
+  },
+  {
+    id: "9",
+    title: "Langkawi Tours (Business Listing)",
+    description:
+      "Local tour operator offering island hopping, snorkeling, and private charters.",
+    category: "business",
+    tags: ["travel", "tour", "island"],
+    location: "Langkawi, MY",
+    rating: 4.8,
+    image: "/bali-temple-sunset.png",
+    claimed: true,
+    businessName: "Langkawi Tours",
+    businessPhone: "+60 12-345 6789",
+    businessEmail: "info@lktours.com",
+  },
+  {
+    id: "10",
+    title: "Homepage Banner Promo",
+    description:
+      "Premium banner placement on homepage for 30 days to maximize visibility.",
+    category: "promotions",
+    tags: ["ads", "banner"],
+    location: "Site-wide",
+    price: "RM 499",
+    image: "/clean-modern-interior.png",
+  },
+  {
+    id: "11",
+    title: "Sidebar Skyscraper",
+    description:
+      "High-impact ad unit on the right sidebar across key pages.",
+    category: "ads",
+    tags: ["ads", "sidebar"],
+    location: "Site-wide",
+    price: "RM 299",
+    image: "/tech-conference-stage.png",
+  },
+  {
+    id: "12",
+    title: "Island Hopping Charter",
+    description: "Private boat charter for island hopping with snorkeling gear included.",
+    category: "travel",
+    tags: ["island", "boat", "snorkeling"],
+    location: "Langkawi, MY",
+    price: "RM 399",
+    image: "/mountain-hiking-trail-sunrise.png",
+    featured: true,
+  },
+  {
+    id: "13",
+    title: "Premium Cleaning Package",
+    description: "Deep cleaning service for homes and offices with eco products.",
+    category: "services",
+    tags: ["cleaning", "eco", "home"],
+    location: "Kuala Lumpur",
+    price: "RM 350",
+    image: "/clean-modern-interior.png",
+  },
+  {
+    id: "14",
+    title: "Product Designer (UI/UX)",
+    description: "Design intuitive user experiences for our suite of products.",
+    category: "jobs",
+    tags: ["design", "uiux", "remote"],
+    location: "Remote",
+    price: "RM 95k - RM 120k",
+    image: "/developer-coding-office.png",
+  },
+  {
+    id: "15",
+    title: "Food Festival 2025",
+    description: "Taste the world at our annual food festival with 100+ vendors.",
+    category: "events",
+    tags: ["food", "festival", "family"],
+    location: "Penang",
+    date: "June 10-12, 2025",
+    image: "/jazz-festival-outdoor-stage.png",
+    featured: true,
+  },
+  {
+    id: "16",
+    title: "Footer Sponsor Bundle",
+    description: "Sponsorship bundle with footer placement across all pages.",
+    category: "ads",
+    tags: ["ads", "sponsor"],
+    location: "Site-wide",
+    price: "RM 199",
+    image: "/bali-temple-sunset.png",
   },
 ]
 
@@ -118,29 +217,58 @@ export default function Home() {
         (listing) => listing.tags.some((tag) => selectedTags.includes(tag)) || selectedTags.includes(listing.category),
       )
 
+  const sortedListings = filteredListings
+
+  const handleSelectCategory = (category: "travel" | "events" | "jobs" | "services" | "business") => {
+    setSelectedTags([category])
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <MaintenanceWrapper>
+      <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Navbar />
+      <div id="travel-guide" />
       <Hero />
-      <TagSelector selectedTags={selectedTags} onTagChange={setSelectedTags} />
+      {/*<TagSelector selectedTags={selectedTags} onTagChange={setSelectedTags} />*/}
+
+      {/* Dashboard Link 
+      <section className="py-8 bg-blue-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-4">🚀 Dashboard Mockup Available</h2>
+          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+            Explore the interactive dashboard system with different user roles and functionalities
+          </p>
+          <a 
+            href="/dashboard" 
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            View Dashboard Mockup
+          </a>
+        </div>
+      </section>*/}
 
       {/* Listings Section */}
+      <div id="events" />
+      <div id="jobs" />
+      <div id="services" />
+      <div id="business" />
       <section className="py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Featured Listings</h2>
+            {/*<h2 className="text-3xl font-bold text-foreground mb-4">Featured Listings</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Discover amazing opportunities, experiences, and services curated just for you
-            </p>
+            </p>*/}
+            <TagSelector selectedTags={selectedTags} onTagChange={setSelectedTags} />
           </div>
-
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredListings.map((listing) => (
+            {sortedListings.map((listing) => (
               <ListingCard key={listing.id} {...listing} />
             ))}
           </div>
 
-          {filteredListings.length === 0 && (
+          {sortedListings.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">
                 No listings found for the selected tags. Try adjusting your filters.
@@ -150,8 +278,11 @@ export default function Home() {
         </div>
       </section>
 
-      <About />
+      {/*<About />*/}
+      <div id="account" />
       <Footer />
-    </div>
+      <BottomNav onSelectCategory={handleSelectCategory} />
+      </div>
+    </MaintenanceWrapper>
   )
 }
